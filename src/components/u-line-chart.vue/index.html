@@ -1,0 +1,49 @@
+<u-chart-shell
+    :data="data"
+    :title="title"
+    :caption="caption"
+    :series="series"
+    :border="border"
+    :legend="legend"
+    :width="width"
+    :height="height"
+    :titleAlign="titleAlign"
+    :loading="loading"
+    :contentStyle="contentStyle">
+    <template v-slot:default="{ canvaswrapper }">
+        <vego-canvas
+        :width="canvaswrapper.canvasWidth"
+        :height="canvaswrapper.canvasHeight"
+        @domMousemove="hover">
+                <u-hv-axis
+                    :mouse="mouse"
+                    :x-series="xAxisSeries"
+                    :y-series="yAxisSeries"
+                    :data-y-tag="'Unemployment'"
+                    :data-x-tag="'Date'"
+                    :space-x-range="canvaswrapper.spaceXRange"
+                    :space-y-range="canvaswrapper.spaceYRange">
+                    <template v-slot:default="{ graphData }">
+                        <u-line-shape
+                            :fx="graphData.fx"
+                            :fy="graphData.fy"
+                            :xSeries="graphData.xSeries"
+                            :ySeries="graphData.ySeries"
+                        >
+                        </u-line-shape>
+                    </template>
+                    <template v-slot:indicator="{ focusData }">
+                        <u-line-indicator
+                            :vego-geometry="{
+                                x: focusData.xSpace,
+                            }""
+                            :y-start="canvaswrapper.spaceYRange[1]"
+                            :h="focusData.ySpace"
+                            :height="canvaswrapper.spaceYSpan"
+                        >
+                        </u-line-indicator>
+                    </template>
+                </u-hv-axis>
+        </vego-canvas>
+    </template>
+</u-chart-shell>
