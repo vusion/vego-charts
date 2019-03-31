@@ -1,3 +1,4 @@
+import { colorsDark } from '../base';
 export const UChartShell = {
     name: 'u-chart-shell',
     props: {
@@ -13,6 +14,11 @@ export const UChartShell = {
         border: Boolean,
         // X轴下方是否显示每条线段对应的标签，当值是'always'的时候，legend始终显示
         legend: [Boolean, String],
+        // 线的颜色组
+        colors: {
+            type: Array,
+            default: () => colorsDark,
+        },
         // 图表的宽度
         width: {
             type: String,

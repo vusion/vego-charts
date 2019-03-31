@@ -34,6 +34,7 @@ export const UHvAxis = {
             fx: undefined,
             fy: undefined,
             yticks: undefined,
+            rangepadding: 10,
         };
     },
     computed: {
@@ -48,27 +49,46 @@ export const UHvAxis = {
                 ySeries: this.ySeries,
             };
         },
+        isNeedIndicator() {
+            const {
+                mouse, spaceXRange, spaceYRange, rangepadding,
+            } = this;
+            const {
+                x, y,
+            } = mouse;
+            return x > spaceXRange[0] - rangepadding && x < spaceXRange[1] + rangepadding
+                && y > spaceYRange[1] && y < spaceYRange[0];
+        },
         focusData() {
             const {
                 fx, fy, mouse, ySeries, spaceXRange,
             } = this;
+            if (!this.isNeedIndicator) {
+                this.$emit('focusChange', null);
+                return;
+            }
             if (!fy)
                 return {};
             const ym = fy.invert(mouse.y);
             const eachBand = fx.step();
             const xm = mouse.x - spaceXRange[0];
             const i = fx.invert(xm);
-            const s = ySeries.reduce((a, b) => {
+            let j = 0;
+            const s = ySeries.reduce((a, b, idx) => {
                 const condition = Math.abs(a[i] - ym) < Math.abs(b[i] - ym);
+                if (!condition)
+                    j = idx;
                 return condition ? a : b;
             });
-            return {
+            const payload = {
                 xIndex: i,
                 xSpace: i * eachBand + spaceXRange[0],
-                yIndex: s,
+                yIndex: j,
                 ySpace: fy(s[i]),
                 data: s[i],
             };
+            this.$emit('focusChange', payload);
+            return payload;
         },
     },
     watch: {
@@ -80,6 +100,7 @@ export const UHvAxis = {
         this.calcuFunc();
     },
     methods: {
+
         calcuFunc() {
             const {
                 xSeries,
@@ -165,18 +186,24 @@ export const UHvAxis = {
     draw(g) {
         this.drawXAxis(g);
         this.drawYAxis(g);
+        // cacheaxis
         // this.drawData(g);
         // this.drawIndicator(g);
     },
     render(createElement) {
-        return createElement('div', this.$options.propsData, [
-            this.$scopedSlots.default({
+        const children = [];
+        if (this.$scopedSlots.default) {
+            children.push(this.$scopedSlots.default({
                 graphData: this.graphData,
-            }),
-            this.$scopedSlots.indicator({
+            }));
+        }
+
+        if (this.$scopedSlots.indicator) {
+            children.push(this.$scopedSlots.indicator({
                 focusData: this.focusData,
-            }),
-        ]);
+            }));
+        }
+        return createElement('div', this.$options.propsData, children);
     },
 };
 export default UHvAxis;

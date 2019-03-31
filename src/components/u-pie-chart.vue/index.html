@@ -1,0 +1,49 @@
+<u-chart-shell
+    :data="data"
+    :title="title"
+    :caption="caption"
+    :series="series"
+    :border="border"
+    :legend="legend"
+    :width="width"
+    :height="height"
+    :titleAlign="titleAlign"
+    :loading="loading"
+    :contentStyle="contentStyle">
+    <template v-slot:default="{ canvaswrapper }">
+        <vego-canvas
+            :width="canvaswrapper.canvasWidth"
+            :height="canvaswrapper.canvasHeight"
+            @domMousemove="onCanvasMouseMove">
+            <u-pie-shape
+                :vego-geometry="{
+                    x: canvaswrapper.canvasWidth/2,
+                    y: canvaswrapper.canvasHeight/2
+                }""
+                :originData="data"
+                :data="percentage"
+                :hollow="hollow"
+                :withPadding="withPadding"
+                :outerRadius="Math.min(canvaswrapper.canvasWidth-50, canvaswrapper.canvasHeight-50)/2"
+                @piein="onPiein"
+                @pieout="onPieout">
+                <template v-slot:default="{ graphData }">
+                    <u-arc-shape
+                        v-for="pie in graphData.pies"
+                        :key="pie.color"
+                        :fn="graphData.pieFn"
+                        :color="pie.color"
+                        :hoverColor="pie.hovercolor"
+                        :pie="pie.data"
+                        :originData="pie.originData"
+                    ></u-arc-shape>
+                </template>
+            </u-pie-shape>
+        </vego-canvas>
+    </template>
+    <template v-if="boardInfo" v-slot:infoborad>
+        <div :style="boradTransform">
+            <slot :focus="boardInfo"></slot>
+        </div>
+    </template>
+</u-chart-shell>

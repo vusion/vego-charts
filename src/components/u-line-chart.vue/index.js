@@ -29,8 +29,8 @@ export const ULineChart = {
         xAxis: Object, // 绘制X轴需要传入的数据，属性key的值为data数组中对象的某个属性，依据此值来绘制X轴的刻度尺
         yAxis: Object, // 绘制Y轴需要传入的数据，属性min，max表示Y轴的最大值和最小值，count表示Y轴最小值和最大值之间分成几段，默认值为8
         // // 线段是否采用平滑方式绘制
-        // smooth: Boolean,
-        // // 线段和X轴之间否填充
+        smooth: Boolean,
+        // 线段和X轴之间否填充
         // fill: Boolean,
         // 图表标题的对齐方式，默认是居中，值有:left,center,right
         titleAlign: { type: String, default: 'center' },
@@ -46,6 +46,8 @@ export const ULineChart = {
     data() {
         return {
             mouse: {},
+            boardInfo: null,
+            boradTransform: '',
         };
     },
     computed: {
@@ -67,6 +69,28 @@ export const ULineChart = {
     methods: {
         hover(event) {
             this.mouse = event;
+        },
+        onFocusChange(payload) {
+            if (payload) {
+                const {
+                    series, data,
+                } = this;
+                const skey = series[payload.yIndex].key;
+                const target = data[payload.xIndex];
+                // info[xkey] = target[xkey];
+
+                // this.boardInfo = {};
+                // const target = this.data[payload.xIndex];
+                // this.boardInfo[this.xAxis.key] = target[this.xAxis.key];
+                // this.boardInfo[this.series[payload.yin]]
+                this.boardInfo = {
+                    key: skey,
+                    value: target[skey],
+                };
+                this.boradTransform = `transform: translate(${payload.xSpace}px, ${payload.ySpace}px);`;
+            } else {
+                this.boardInfo = null;
+            }
         },
     },
 };

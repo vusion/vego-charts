@@ -22,19 +22,36 @@
                     :data-y-tag="'Unemployment'"
                     :data-x-tag="'Date'"
                     :space-x-range="canvaswrapper.spaceXRange"
-                    :space-y-range="canvaswrapper.spaceYRange"
-                    @focusChange="onFocusChange">
+                    :space-y-range="canvaswrapper.spaceYRange">
                     <template v-slot:default="{ graphData }">
-                        <u-line-shape
-                            :fx="graphData.fx"
-                            :fy="graphData.fy"
-                            :xSeries="graphData.xSeries"
-                            :ySeries="graphData.ySeries"
-                            :curve="smooth"
+                        <u-stack-shape
+                            v-if="graphData.fx"
+                            v-for="(s, i) in graphData.xSeries"
+                            :y-series="graphData.ySeries.map((s) => s[i])"
+                            :index="i"
+                            :key="s"
+                            :vego-geometry="{
+                                x: graphData.fx(s),
+                                y: canvaswrapper.spaceYRange[0]
+                            }""
                         >
-                        </u-line-shape>
+                            <template v-slot:default="{ shapeData }">
+                                <u-rect-shape
+                                    v-if="shapeData.ySeries"
+                                    v-for="(t, j) in shapeData.ySeries"
+                                    :index="j"
+                                    :fy="graphData.fy"
+                                    :y0-data="shapeData.ySeries[j-1] || 0"
+                                    :y1-data="t"
+                                    :y-bottom="canvaswrapper.spaceYRange[0]"
+                                    :span="20"
+                                >
+                                </u-rect-shape>
+                            </template>
+
+                        </u-stack-shape>
                     </template>
-                    <template v-slot:indicator="{ focusData }">
+                    <!-- <template v-slot:indicator="{ focusData }">
                         <u-line-indicator
                             v-if="focusData"
                             :vego-geometry="{
@@ -45,13 +62,8 @@
                             :height="canvaswrapper.spaceYSpan"
                         >
                         </u-line-indicator>
-                    </template>
+                    </template> -->
                 </u-hv-axis>
         </vego-canvas>
-    </template>
-    <template v-if="boardInfo" v-slot:infoborad>
-        <div :style="boradTransform">
-            <slot :focus="boardInfo"></slot>
-        </div>
     </template>
 </u-chart-shell>
