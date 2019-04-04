@@ -20,6 +20,14 @@ export const UHvAxis = {
         xSeries: Array,
         ySeries: Array,
         mouse: Object,
+        verticalLine: {
+            type: Boolean,
+            default: false,
+        },
+        padding: {
+            type: Array,
+            default: () => [0],
+        },
         dataYTag: {
             type: String,
             default: '',
@@ -107,12 +115,14 @@ export const UHvAxis = {
                 ySeries,
                 spaceXRange,
                 spaceYRange,
+                padding,
             } = this;
             this.fx = scaleBand()
                 .domain(xSeries)
                 .range(spaceXRange)
-                .paddingInner(0)
-                .paddingOuter(0);
+                .padding(padding);
+            // .paddingInner(0)
+            // .paddingOuter(0);
             this.fx.invert = scaleBandInvert(this.fx);
             this.fy = scaleLinear()
                 .range(spaceYRange)
@@ -128,6 +138,7 @@ export const UHvAxis = {
                 spaceXRange,
             } = this;
             const height = spaceYRange[0];
+            const margin = fx(xSeries[xSeries.length - 1]) + fx.bandwidth() * fx.padding() * 2;
             // const tickFormat = fx.tickFormat();
             g.beginPath()
                 .moveTo(spaceXRange[0], height);
@@ -138,6 +149,8 @@ export const UHvAxis = {
                     .lineTo(t, height + 6)
                     .moveTo(t, height);
             });
+
+            g.lineTo(margin, height);
             g.setStrokeStyle('#000');
             g.stroke();
             g.setTextAlign('center')
@@ -147,7 +160,7 @@ export const UHvAxis = {
                 g.fillText(d, t, height + 6);
             });
             if (this.dataXTag)
-                g.fillText(this.dataXTag, fx(xSeries[xSeries.length - 1]) + 50, height);
+                g.fillText(this.dataXTag, margin + 20, height);
         },
         drawYAxis(g) {
             const {
@@ -158,7 +171,7 @@ export const UHvAxis = {
 
             const w = spaceXRange[0];
             const height = spaceYRange[0];
-            const wr = fx(xSeries[xSeries.length - 1]);
+            const wr = fx(xSeries[xSeries.length - 1]) + fx.bandwidth() * fx.padding() * 2;
             const tickFormat = fy.tickFormat();
             g.beginPath()
                 .moveTo(w, height);
@@ -170,6 +183,19 @@ export const UHvAxis = {
                     .lineTo(wr, yd)
                     .moveTo(w, yd);
             });
+            if (this.verticalLine) {
+                const h = fy(yticks[yticks.length - 1]);
+                const band = fx.bandwidth();
+                let t;
+                xSeries.forEach((d) => {
+                    t = fx(d);
+                    g.moveTo(t - band, height)
+                        .lineTo(t - band, h)
+                        .moveTo(t - band, height);
+                });
+                g.moveTo(t + band, height)
+                    .lineTo(t + band, h);
+            }
             g.setStrokeStyle('#eee');
             g.stroke();
             g.setTextAlign('right')

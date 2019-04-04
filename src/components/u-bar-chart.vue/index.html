@@ -9,18 +9,19 @@
     :height="height"
     :titleAlign="titleAlign"
     :loading="loading"
+    :spaceXRangeBegin="100"
     :contentStyle="contentStyle">
     <template v-slot:default="{ canvaswrapper }">
         <vego-canvas
         :width="canvaswrapper.canvasWidth"
-        :height="canvaswrapper.canvasHeight"
-        @domMousemove="hover">
+        :height="canvaswrapper.canvasHeight">
                 <u-hv-axis
-                    :mouse="mouse"
                     :x-series="xAxisSeries"
                     :y-series="yAxisSeries"
                     :data-y-tag="'Unemployment'"
                     :data-x-tag="'Date'"
+                    :padding="[0.5]"
+                    :verticalLine="true"
                     :space-x-range="canvaswrapper.spaceXRange"
                     :space-y-range="canvaswrapper.spaceYRange">
                     <template v-slot:default="{ graphData }">
@@ -44,7 +45,9 @@
                                     :y0-data="shapeData.ySeries[j-1] || 0"
                                     :y1-data="t"
                                     :y-bottom="canvaswrapper.spaceYRange[0]"
-                                    :span="20"
+                                    :span="graphData.fx.bandwidth()"
+                                    @mouseenter="onRectEnter(t, s, series[j].key, graphData.fx(s) + graphData.fx.bandwidth()/2, graphData.fy(t))"
+                                    @mouseleave="onRectLeave()"
                                 >
                                 </u-rect-shape>
                             </template>
@@ -65,5 +68,10 @@
                     </template> -->
                 </u-hv-axis>
         </vego-canvas>
+    </template>
+    <template v-if="boardInfo" v-slot:infoborad>
+        <div :style="boradTransform">
+            <slot :focus="boardInfo"></slot>
+        </div>
     </template>
 </u-chart-shell>

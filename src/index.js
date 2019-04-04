@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import canvasPlugin from 'vego';
 Vue.use(canvasPlugin, {
-    enableMouseOver: 5,
+    enableMouseOver: 1,
     enableTouch: false,
 });
 

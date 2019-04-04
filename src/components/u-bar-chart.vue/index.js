@@ -12,7 +12,6 @@ function pile(arr) {
         });
         return row;
     }, new Array(l).fill(0));
-    console.log(arr);
 }
 export const UBarChart = {
     name: 'u-bar-chart',
@@ -48,7 +47,8 @@ export const UBarChart = {
     },
     data() {
         return {
-            mouse: {},
+            boardInfo: undefined,
+            boradTransform: '',
         };
     },
     computed: {
@@ -70,8 +70,16 @@ export const UBarChart = {
         },
     },
     methods: {
-        hover(event) {
-            this.mouse = event;
+        onRectEnter(value, key, series, x, y) {
+            this.boardInfo = {
+                key,
+                value,
+                series,
+            };
+            this.boradTransform = `transform: translate(${x}px, ${y}px);`;
+        },
+        onRectLeave(item) {
+            this.boardInfo = undefined;
         },
     },
 };
