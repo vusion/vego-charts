@@ -8,22 +8,34 @@
         </slot>
     </div>
     <div v-if="legend" :class="$style.legend" :always="legend=== 'always'" :role="series.length > 5 ? 'multiline' : ''">
-        <div v-for="(sery,index) in series" :class="$style.item" :role="series.length > 4 ? 'omitwidth' : ''" :disabled="sery.hidden" :title="sery.name || sery.key" @click.stop="toggle(index)">
+        <div v-for="({sery, hidden},index) in seriesOnShow" :key="sery" :class="$style.item" :role="seriesOnShow.length > 4 ? 'omitwidth' : ''" :disabled="hidden" :title="sery" @click.stop="toggle(index)">
             <div :class="$style.dot" :style="`background: ${colors[index]}`"></div>
             <!-- <slot :name="'legendTemplate' + index" :sery="sery" :index="index">{{sery.name || sery.key}}</slot> -->
             <!-- <u-chart-tooltip :sery="sery" type="legend" :percent="index" :vnode="$scopedSlots.legendTemplate"></u-chart-tooltip> -->
-            {{sery.name || sery.key}}
+            {{sery}}
         </div>
         <slot name="legendSuffix"></slot>
     </div>
-    <div ref="canvasWrapper" :class="$style.content" :style="contentStyle">
-        <slot v-if="canvaswrapper" v-bind:canvaswrapper="canvaswrapper"></slot>
+    <div :class="$style.content" :style="contentStyle">
+        <div ref="canvasWrapper" :class="$style.contentcanvas">
+            <slot></slot>
+        </div>
+
+        <div v-if="xAxis && xAxis.name" :class="$style.label" role="label-xName">{{xAxis.name}}</div>
+        <div v-if="yAxis && yAxis.name" :class="$style.label" role="label-yName">{{yAxis.name}}</div>
+        <m-popper ref="chartpopper" :class="$style.popper" trigger="manual">
+            <div v-if="target" :class="$style['u-tooltip']" :role="tooltipRole" :style="tooltipStyle">
+                <slot name="tooltipTemplate" :sery="target.target.data">
+                    <div v-for="(key, idx) in target.target.data.keys" :key="key">
+                        {{key}}: {{target.target.data.values[idx]}}
+                    </div>
+                </slot>
+            </div>
+        </m-popper>
     </div>
+
     <div :class="$style.operate">
         <slot name="operate"></slot>
-    </div>
-    <div :class="[$style.content, $style.infoborad]">
-        <slot name="infoborad"></slot>
     </div>
     <div :class="$style.loadingLabel" v-if="loading">
         <u-loading size="large" :class="$style.loading"></u-loading>

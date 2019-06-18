@@ -1,85 +1,119 @@
-function omit(arr, key) {
-    return arr.map((r) => r[key]);
-}
-function pile(arr) {
-    if (arr.length === 1)
-        return arr;
-    const l = arr[0].length;
+import { StackChart } from 'vego-d3';
+import UChartShell from '../u-chart-shell.vue';
 
-    arr.reduce((lastRow, row) => {
-        lastRow.forEach((ac, i) => {
-            row[i] = ac + row[i];
-        });
-        return row;
-    }, new Array(l).fill(0));
-}
 export const UBarChart = {
     name: 'u-bar-chart',
+    extends: UChartShell,
     props: {
-        data: Array,
-        title: String,
-        caption: String,
-        series: Array,
-        border: Boolean,
-        legend: [Boolean, String],
-        width: {
-            type: String,
-            default: '100%',
-        },
-        height: {
-            type: String,
-            default: '480px',
-        },
-        xAxis: Object,
-        yAxis: Object,
+        xAxis: {
+            type: Object,
+            default: () => ({}),
+        }, // 绘制X轴需要传入的数据，属性key的值为data数组中对象的某个属性，依据此值来绘制X轴的刻度尺
+        yAxis: {
+            type: Object,
+            default: () => ({}),
+        }, // 绘制Y轴需要传入的数据，属性min，max表示Y轴的最大值和最小值，count表示Y轴最小值和最大值之间分成几段，默认值为8
         stack: [String, Boolean],
-        loading: { type: Boolean, default: false },
-        contentStyle: Object,
-        titleAlign: { type: String, default: 'center' },
         // trigger: {
         //     type: String,
         //     default: 'hover',
         // },
-        // gapSize: {
-        //     type: String,
-        //     default: 'normal',
-        // },
+        gapSize: {
+            type: String,
+            default: 'normal',
+        },
     },
     data() {
         return {
-            boardInfo: undefined,
-            boradTransform: '',
+            chart: null,
+            target: null,
         };
     },
     computed: {
-        xAxisSeries() {
-            const {
-                xAxis, data,
-            } = this;
-
-            return omit(data, xAxis.key);
+        seriesLength() {
+            return this.data.length;
         },
-        yAxisSeries() {
+        tooltipLocation() {
             const {
-                series, data,
-            } = this;
-
-            const dt = series.map(({ key }, i) => omit(data, key));
-            pile(dt);
-            return dt;
+                target,
+                targetPositions,
+            } = this.target;
+            const p = Math.min(...targetPositions.y);
+            const directionX = target.i >= (this.seriesLength / 2);
+            const directionY = p / this.canvaswrapper.canvasHeight < 0.5;
+            return {
+                x: directionX ? targetPositions.xl : targetPositions.xr,
+                y: p - this.canvaswrapper.canvasHeight,
+                directionX,
+                directionY,
+            };
+        },
+        tooltipRole() {
+            if (!this.target)
+                return '';
+            const {
+                directionX,
+                directionY,
+            } = this.tooltipLocation;
+            return `u-tooltip-${(directionX ? 'left' : 'right')}-${directionY ? 'top' : 'bottom'}`;
+        },
+        tooltipStyle() {
+            if (!this.target)
+                return '';
+            const {
+                x, y,
+            } = this.tooltipLocation;
+            return {
+                transform: `translate(${x}px, ${y}px)`,
+            };
+        },
+    },
+    watch: {
+        canvaswrapper() {
+            this.reset();
+        },
+        showSeries(val) {
+            // this.chart.reRender({ chosen: val });
         },
     },
     methods: {
-        onRectEnter(value, key, series, x, y) {
-            this.boardInfo = {
-                key,
-                value,
+        reset() {
+            const {
                 series,
-            };
-            this.boradTransform = `transform: translate(${x}px, ${y}px);`;
+                data,
+                yAxis,
+                xAxis,
+            } = this;
+            if (!this.chart) {
+                // eslint-disable-next-line
+                this.chart = new StackChart(this.$refs.canvasWrapper, {
+                    keys: series,
+                    data,
+                    padding: {
+                        left: 30,
+                        right: 20,
+                        top: 20,
+                        bottom: 50,
+                    },
+                    smooth: this.smooth,
+                    yAxis,
+                    xAxis,
+                    onIndicatorChange: this.onIndicatorChange,
+                });
+                this.chart.render({});
+            } else {
+                this.chart.resize({});
+            }
         },
-        onRectLeave(item) {
-            this.boardInfo = undefined;
+        onIndicatorChange(meta) {
+            const popperComponent = this.$refs.chartpopper;
+            if (meta) {
+                this.target = meta;
+                popperComponent.open();
+            } else {
+                this.target = null;
+                popperComponent.close();
+            }
         },
     },
 };

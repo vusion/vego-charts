@@ -7,7 +7,7 @@
     "cloud-ui.vusion": "^0.3.71",
     "d3": "^5.9.2",
     "proto-ui.vusion": "^0.3.49",
-    "vego": "^0.0.76"
+    "vego-d3": "0.0.2"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
