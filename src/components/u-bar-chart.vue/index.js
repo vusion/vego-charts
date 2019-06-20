@@ -1,9 +1,11 @@
 import { StackChart } from 'vego-d3';
 import UChartShell from '../u-chart-shell.vue';
+import VegoChartMixin from '../base/vego-chart-mixin.js';
 
 export const UBarChart = {
     name: 'u-bar-chart',
     extends: UChartShell,
+    mixins: [VegoChartMixin],
     props: {
         xAxis: {
             type: Object,
@@ -43,7 +45,7 @@ export const UBarChart = {
             const directionY = p / this.canvaswrapper.canvasHeight < 0.5;
             return {
                 x: directionX ? targetPositions.xl : targetPositions.xr,
-                y: p - this.canvaswrapper.canvasHeight,
+                y: p,
                 directionX,
                 directionY,
             };
@@ -69,8 +71,9 @@ export const UBarChart = {
         },
     },
     watch: {
-        canvaswrapper() {
-            this.reset();
+        canvaswrapper(val) {
+            if (val)
+                this.reset();
         },
         showSeries(val) {
             // this.chart.reRender({ chosen: val });
@@ -89,12 +92,7 @@ export const UBarChart = {
                 this.chart = new StackChart(this.$refs.canvasWrapper, {
                     keys: series,
                     data,
-                    padding: {
-                        left: 30,
-                        right: 20,
-                        top: 20,
-                        bottom: 50,
-                    },
+                    padding: this.vegoChartPadding,
                     smooth: this.smooth,
                     yAxis,
                     xAxis,

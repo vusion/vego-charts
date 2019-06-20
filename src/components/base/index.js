@@ -41,6 +41,12 @@ export const colorsDark = [
 
 export const colorsDarkAlpha = colorsDark.map(transparency);
 
+export const DEFAULT_PADDING = {
+    left: 30,
+    right: 50,
+    top: 20,
+    bottom: 50,
+};
 // export * from './axis.js';
 // export * from './line.js';
 // export * from './arc.js';

@@ -1,5 +1,4 @@
-import { colorsDark } from '../base';
-// import { ChartTooltip } from 'cloud-ui.vusion';
+import { colorsDark } from 'vego-d3';
 export const UChartShell = {
     // components: {
     //     [ChartTooltip.name]: ChartTooltip,
@@ -18,11 +17,6 @@ export const UChartShell = {
         border: Boolean,
         // X轴下方是否显示每条线段对应的标签，当值是'always'的时候，legend始终显示
         legend: [Boolean, String],
-        // 线的颜色组
-        colors: {
-            type: Array,
-            default: () => colorsDark,
-        },
         // 图表的宽度
         width: {
             type: String,
@@ -33,7 +27,7 @@ export const UChartShell = {
             type: String,
             default: '480px',
         },
-
+        colors: Array,
         // 图表标题的对齐方式，默认是居中，值有:left,center,right
         titleAlign: { type: String, default: 'center' },
         // true表示正在加载中，false表示加载完成
@@ -46,6 +40,14 @@ export const UChartShell = {
             canvaswrapper: null,
             seriesOnShow: this.series.slice(1).map((sery) => ({ sery, hidden: false })),
             showSeries: this.series.slice(1).map((_, idx) => idx),
+            legendColors: colorsDark.map((s) => s.stroke),
+            popperOptions: {
+                modifiers: {
+                    flip: {
+                        enabled: false,
+                    },
+                },
+            },
         };
     },
     mounted() {

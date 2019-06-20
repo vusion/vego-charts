@@ -9,7 +9,7 @@
     </div>
     <div v-if="legend" :class="$style.legend" :always="legend=== 'always'" :role="series.length > 5 ? 'multiline' : ''">
         <div v-for="({sery, hidden},index) in seriesOnShow" :key="sery" :class="$style.item" :role="seriesOnShow.length > 4 ? 'omitwidth' : ''" :disabled="hidden" :title="sery" @click.stop="toggle(index)">
-            <div :class="$style.dot" :style="`background: ${colors[index]}`"></div>
+            <div :class="$style.dot" :style="`background: ${legendColors[index]}`"></div>
             <!-- <slot :name="'legendTemplate' + index" :sery="sery" :index="index">{{sery.name || sery.key}}</slot> -->
             <!-- <u-chart-tooltip :sery="sery" type="legend" :percent="index" :vnode="$scopedSlots.legendTemplate"></u-chart-tooltip> -->
             {{sery}}
@@ -21,9 +21,9 @@
             <slot></slot>
         </div>
 
-        <div v-if="xAxis && xAxis.name" :class="$style.label" role="label-xName">{{xAxis.name}}</div>
-        <div v-if="yAxis && yAxis.name" :class="$style.label" role="label-yName">{{yAxis.name}}</div>
-        <m-popper ref="chartpopper" :class="$style.popper" trigger="manual">
+        <div v-if="xAxis && xAxis.name" :class="$style.label" role="label-xName" :style="`bottom:${vegoChartPadding.bottom - 25}px;right:${vegoChartPadding.right-48}px`">{{xAxis.name}}</div>
+        <div v-if="yAxis && yAxis.name" :class="$style.label" role="label-yName" :style="`left:${vegoChartPadding.left-20}px`">{{yAxis.name}}</div>
+        <m-popper ref="chartpopper" :class="$style.popper" trigger="manual" placement="top-start" :options="popperOptions">
             <div v-if="target" :class="$style['u-tooltip']" :role="tooltipRole" :style="tooltipStyle">
                 <slot name="tooltipTemplate" :sery="target.target.data">
                     <div v-for="(key, idx) in target.target.data.keys" :key="key">

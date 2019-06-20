@@ -1,9 +1,11 @@
 import { LineChart, AreaChart, ScatterChart } from 'vego-d3';
 import UChartShell from '../u-chart-shell.vue';
+import VegoChartMixin from '../base/vego-chart-mixin.js';
 
 export const ULineChart = {
     name: 'u-line-chart',
     extends: UChartShell,
+    mixins: [VegoChartMixin],
     props: {
         xAxis: {
             type: Object,
@@ -43,7 +45,7 @@ export const ULineChart = {
             const directionY = p / this.canvaswrapper.canvasHeight < 0.5;
             return {
                 x: targetPositions.x,
-                y: p - this.canvaswrapper.canvasHeight,
+                y: p, // - this.canvaswrapper.canvasHeight,
                 directionX,
                 directionY,
             };
@@ -69,8 +71,9 @@ export const ULineChart = {
         },
     },
     watch: {
-        canvaswrapper() {
-            this.reset();
+        canvaswrapper(val) {
+            if (val)
+                this.reset();
         },
         showSeries(val) {
             this.chart.reRender({ chosen: val });
@@ -90,17 +93,16 @@ export const ULineChart = {
                 this.chart = new Construct(this.$refs.canvasWrapper, {
                     keys: series,
                     data,
-                    padding: {
-                        left: 50,
-                        right: 50,
-                        top: 20,
-                        bottom: 50,
-                    },
+                    padding: this.vegoChartPadding,
                     smooth: this.smooth,
                     yAxis,
                     xAxis,
                     onIndicatorChange: this.onIndicatorChange,
                 });
+                if (this.colors) {
+                    this.chart.injectColorList(this.colors);
+                    this.legendColors = this.chart.colors.map((c) => c.stroke);
+                }
                 this.chart.render({});
             } else {
                 this.chart.resize({});
